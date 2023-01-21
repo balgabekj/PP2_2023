@@ -32,5 +32,5 @@ y = 10
 z = x + y
 print(z)
 #Ex5
-ethdfgh6
+
 
