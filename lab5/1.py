@@ -2,7 +2,7 @@ import re
 
 pattern = r'a(b*)'
 
-test_strings = ['ab', 'abb', 'abbb', 'a', 'ac', 'c']
+test_strings = list(map(str,input().split()))
 
 
 for string in test_strings:
