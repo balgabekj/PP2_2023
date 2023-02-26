@@ -1,12 +1,9 @@
 import re
 
-# Define the regular expression pattern
 pattern = r'a(b{2,3})'
 
-# Test strings
-test_strings = ['ab', 'abb', 'abbb', 'ac', 'abc']
+test_strings = list(map(str,input().split()))
 
-# Loop through the test strings and print whether they match the pattern
 for test_string in test_strings:
     match = re.search(pattern, test_string)
     if match:
