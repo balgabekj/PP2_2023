@@ -1,29 +1,71 @@
 import psycopg2
-from config import config
+import csv
 
-def create_table():
-    commands = (
-        """
-        CREATE TABLE phonebook (
-            user_id serial PRIMARY KEY,
-            name VARCHAR (50) UNIQUE NOT NULL,
-            phone_number text
-        )
-        """
-    )
+conn = psycopg2.connect(
+    host="localhost",
+    database="postgres",
+    user="postgres",
+    password="4554"
+)
 
-    conn = None
-    try:
-        params = config()
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-        cur.execute(commands)
-        cur.close()
+cur = conn.cursor()
+
+def upload_data_from_csv(filename):
+    with open(filename, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur.execute(
+                "INSERT INTO PhoneBook (first_name, last_name, phone, email) VALUES (%s, %s, %s, %s)",
+                (row[0], row[1], row[2], row[3])
+            )
         conn.commit()
-    except Exception as e:
-        print(str(e))
-    finally:
-        if conn is not None:
-            conn.close()
+        print("Data uploaded successfully from", filename)
 
-create_table()
+def update_data(id, column, value):
+    cur.execute(
+        f"UPDATE PhoneBook SET {column} = %s WHERE id = %s",
+        (value, id)
+    )
+    conn.commit()
+    print("Data updated successfully")
+
+def insert_data_from_console():
+    first_name = input("Enter first name: ")
+    last_name = input("Enter last name: ")
+    phone = input("Enter phone number: ")
+    email = input("Enter email address: ")
+    cur.execute(
+        "INSERT INTO PhoneBook (first_name, last_name, phone, email) VALUES (%s, %s, %s, %s)",
+        (first_name, last_name, phone, email)
+    )
+    conn.commit()
+    print("Data inserted successfully")
+
+def query_data(column, value):
+    cur.execute(
+        f"SELECT * FROM PhoneBook WHERE {column} = %s",
+        (value,)
+    )
+    rows = cur.fetchall()
+    if len(rows) == 0:
+        print("No records found")
+    else:
+        for row in rows:
+            print(row)
+
+def delete_data(column, value):
+    cur.execute(
+        f"DELETE FROM PhoneBook WHERE {column} = %s",
+        (value,)
+    )
+    conn.commit()
+    print("Data deleted successfully")
+
+upload_data_from_csv('PhoneBook_data.csv')
+insert_data_from_console()
+update_data(1, 'first_name', 'Jane')
+query_data('last_name', 'Jones')
+delete_data('last_name', 'Harris')
+
+cur.close()
+conn.close()
